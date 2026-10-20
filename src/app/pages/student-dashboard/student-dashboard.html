@@ -1,0 +1,361 @@
+
+<div class="dashboard-layout">
+
+  <aside class="sidebar">
+    <a class="brand" href="javascript:void(0)">
+      🎓 CampusEvents
+    </a>
+
+    <div class="sidebar-label">STUDENT MENU</div>
+
+    <nav class="sidebar-nav">
+      <button
+        [class.active]="activePage === 'Dashboard'"
+        (click)="setPage('Dashboard')">
+        <span>▦</span> Dashboard
+      </button>
+
+      <button
+        [class.active]="activePage === 'All Events' || activePage === 'Event Details'"
+        (click)="setPage('All Events')">
+        <span>📅</span> All Events
+      </button>
+
+      
+<button
+  [class.active]="activePage === 'My Registrations'"
+  (click)="setPage('My Registrations')">
+  <span>✓</span> My Registrations
+</button>
+
+
+      <button
+        [class.active]="activePage === 'Profile'"
+        (click)="setPage('Profile')">
+        <span>♙</span> Profile
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="student-mini">
+        <div class="avatar">{{ studentName.charAt(0) }}</div>
+        <div>
+          <strong>{{ studentName }}</strong>
+          <small>Student</small>
+        </div>
+      </div>
+
+      <button class="logout-button" (click)="logout()">
+        ↪ Logout
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <span class="topbar-label">CAMPUS EVENTS PORTAL</span>
+        <h2>{{ activePage }}</h2>
+      </div>
+
+      <div class="topbar-user">
+        <div class="avatar">{{ studentName.charAt(0) }}</div>
+        <div>
+          <strong>{{ studentName }}</strong>
+          <small>Student Account</small>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- DASHBOARD -->
+      @if (activePage === 'Dashboard') {
+        <section class="welcome-banner">
+          <div>
+            <span class="eyebrow">YOUR CAMPUS. YOUR EXPERIENCE.</span>
+            <h1>Welcome, {{ studentName }}! 👋</h1>
+            <p>
+              Discover events, explore your interests and make campus memories.
+            </p>
+
+            <button class="primary-button"
+              (click)="setPage('All Events')">
+              Explore Events →
+            </button>
+          </div>
+
+          <div class="welcome-emoji">🎉</div>
+        </section>
+
+        <section class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-icon purple">📅</div>
+            <div>
+              <p>Total Events</p>
+              <h2>{{ events.length }}</h2>
+              <small>Available to explore</small>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <div>
+              <p>Registered</p>
+              <h2>{{ registrationCount }}</h2>
+              <small>Your event registrations</small>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon orange">🕒</div>
+            <div>
+              <p>Upcoming</p>
+              <h2>{{ events.length }}</h2>
+              <small>Events listed in the portal</small>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">FIND YOUR NEXT EXPERIENCE</span>
+              <h2>Upcoming Events</h2>
+            </div>
+
+            <button class="text-button"
+              (click)="setPage('All Events')">
+              View all →
+            </button>
+          </div>
+
+          <div class="event-grid">
+            @for (event of events.slice(0, 3); track event.id) {
+              <article class="event-card">
+                <div class="event-banner" [ngClass]="event.color">
+                  <span>{{ event.icon }}</span>
+                </div>
+
+                <div class="event-info">
+                  <span class="event-tag">{{ event.category }}</span>
+                  <h3>{{ event.title }}</h3>
+                  <p>{{ event.description }}</p>
+                  <div class="event-meta">📅 {{ event.date }}</div>
+                  <div class="event-meta">📍 {{ event.venue }}</div>
+
+                  <button class="primary-button full-button"
+                    (click)="viewEventDetails(event)">
+                    View Details →
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- ALL EVENTS -->
+      @if (activePage === 'All Events') {
+        <section class="section-block">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">EXPLORE YOUR INTERESTS</span>
+              <h2>Discover Campus Events</h2>
+              <p class="section-description">
+                View event information before registering.
+              </p>
+            </div>
+          </div>
+
+          <input
+            class="search-input"
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Search by event name or category..."
+            aria-label="Search events"
+          />
+
+          <div class="event-grid">
+            @for (event of filteredEvents; track event.id) {
+              <article class="event-card">
+                <div class="event-banner" [ngClass]="event.color">
+                  <span>{{ event.icon }}</span>
+                </div>
+
+                <div class="event-info">
+                  <span class="event-tag">{{ event.category }}</span>
+                  <h3>{{ event.title }}</h3>
+                  <p>{{ event.description }}</p>
+                  <div class="event-meta">
+                    📅 {{ event.date }} · {{ event.time }}
+                  </div>
+                  <div class="event-meta">📍 {{ event.venue }}</div>
+
+                  @if (event.registered) {
+                    <button class="registered-button" disabled>
+                      ✓ Registered
+                    </button>
+                  } @else {
+                    <button class="primary-button full-button"
+                      (click)="viewEventDetails(event)">
+                      View Details →
+                    </button>
+                  }
+                </div>
+              </article>
+            } @empty {
+              <p class="empty-state">No events match your search.</p>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- EVENT DETAILS -->
+      @if (activePage === 'Event Details' && selectedEvent) {
+        <section class="section-block event-details">
+
+          <button class="text-button" (click)="backToEvents()">
+            ← Back to All Events
+          </button>
+
+          <div class="details-banner" [ngClass]="selectedEvent.color">
+            <span>{{ selectedEvent.icon }}</span>
+          </div>
+
+          <span class="event-tag">{{ selectedEvent.category }}</span>
+
+          <h1>{{ selectedEvent.title }}</h1>
+
+          <p class="section-description">
+            {{ selectedEvent.description }}
+          </p>
+
+          <div class="details-grid">
+
+            <div class="detail-item">
+              <strong>📅 Event Date</strong>
+              <p>{{ selectedEvent.date }}</p>
+            </div>
+
+            <div class="detail-item">
+              <strong>🕒 Event Time</strong>
+              <p>{{ selectedEvent.time }}</p>
+            </div>
+
+            <div class="detail-item">
+              <strong>📍 Venue</strong>
+              <p>{{ selectedEvent.venue }}</p>
+            </div>
+
+            <div class="detail-item">
+              <strong>🏷️ Category</strong>
+              <p>{{ selectedEvent.category }}</p>
+            </div>
+
+            <div class="detail-item">
+              <strong>📝 About This Event</strong>
+              <p>{{ selectedEvent.description }}</p>
+            </div>
+
+          </div>
+
+          @if (selectedEvent.registered) {
+            <button class="registered-button" disabled>
+              ✓ Already Registered
+            </button>
+          } @else {
+            <button class="primary-button"
+              (click)="registerForEvent(selectedEvent)">
+              Register Now →
+            </button>
+          }
+
+        </section>
+      }
+
+      <!-- MY REGISTRATIONS -->
+      @if (activePage === 'My Registrations') {
+        <section class="section-block">
+          <span class="eyebrow">YOUR ACTIVITIES</span>
+          <h2>My Registrations</h2>
+          <p class="section-description">
+            Keep track of the events you have joined.
+          </p>
+
+          @if (registeredEvents.length > 0) {
+            <div class="event-grid">
+              @for (event of registeredEvents; track event.id) {
+                <article class="event-card">
+                  <div class="event-banner" [ngClass]="event.color">
+                    <span>{{ event.icon }}</span>
+                  </div>
+
+                  <div class="event-info">
+                    <span class="event-tag">REGISTERED</span>
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.description }}</p>
+                    <div class="event-meta">📅 {{ event.date }}</div>
+                    <div class="event-meta">🕒 {{ event.time }}</div>
+                    <div class="event-meta">📍 {{ event.venue }}</div>
+
+                    <button class="cancel-button"
+                      (click)="cancelRegistration(event)">
+                      Cancel Registration
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-card">
+              <span>📅</span>
+              <h3>No registrations yet</h3>
+              <p>
+                Explore campus events and register for your favourites.
+              </p>
+
+              <button class="primary-button"
+                (click)="setPage('All Events')">
+                Browse Events →
+              </button>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- PROFILE -->
+      @if (activePage === 'Profile') {
+        <section class="section-block">
+          <span class="eyebrow">YOUR ACCOUNT</span>
+          <h2>My Profile</h2>
+
+          <div class="profile-card">
+            <div class="profile-avatar">
+              {{ studentName.charAt(0) }}
+            </div>
+
+            <h3>{{ studentName }}</h3>
+            <p class="section-description">Student Account</p>
+
+            <div class="profile-field">
+              <label>Full Name</label>
+              <div>{{ studentName }}</div>
+            </div>
+
+            <div class="profile-field">
+              <label>Email Address</label>
+              <div>{{ studentEmail }}</div>
+            </div>
+
+            <p class="profile-note">
+              Your profile will be connected to your registered account later.
+            </p>
+          </div>
+        </section>
+      }
+
+    </div>
+  </main>
+</div>

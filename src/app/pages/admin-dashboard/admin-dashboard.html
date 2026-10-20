@@ -1,0 +1,353 @@
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">🎓</span>
+      <div>
+        <h2>CampusEvents</h2>
+        <p>Admin Portal</p>
+      </div>
+    </div>
+
+    <div class="admin-profile">
+      <div class="avatar">A</div>
+      <div>
+        <h3>Administrator</h3>
+        <p>Event Manager</p>
+      </div>
+    </div>
+
+    <p class="menu-label">MENU</p>
+
+    <nav class="navigation">
+      <button
+        [class.active]="activePage === 'Dashboard'"
+        (click)="setPage('Dashboard')">
+        <span>▦</span> Dashboard
+      </button>
+
+      <button
+        [class.active]="activePage === 'Create Event'"
+        (click)="setPage('Create Event')">
+        <span>＋</span> Create Event
+      </button>
+
+      <button
+        [class.active]="activePage === 'Manage Events'"
+        (click)="setPage('Manage Events')">
+        <span>▤</span> Manage Events
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="logout-button" (click)="logout()">
+        <span>↪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <header class="topbar">
+      <div>
+        <p class="breadcrumb">CampusEvents / Admin</p>
+        <h1>{{ activePage }}</h1>
+      </div>
+      <div class="admin-badge">
+        <span class="status-dot"></span>
+        Admin
+      </div>
+    </header>
+
+    <!-- Dashboard -->
+    @if (activePage === 'Dashboard') {
+      <section class="page-content">
+        <div class="welcome-banner">
+          <div>
+            <p class="eyebrow">ADMINISTRATION</p>
+            <h2>Welcome back, Administrator! 👋</h2>
+            <p>Manage campus events and keep students connected.</p>
+            <button class="banner-button" (click)="setPage('Create Event')">
+              + Create New Event
+            </button>
+          </div>
+          <div class="banner-icon">🎯</div>
+        </div>
+
+        <h2 class="section-heading">Overview</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon purple">📅</div>
+            <p>Total Events</p>
+            <h2>{{ events.length }}</h2>
+            <span>Events in the system</span>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon blue">💻</div>
+            <p>Technical Events</p>
+            <h2>{{ technicalEvents }}</h2>
+            <span>Technical activities</span>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon pink">🎭</div>
+            <p>Other Events</p>
+            <h2>{{ events.length - technicalEvents }}</h2>
+            <span>Cultural, sports and more</span>
+          </div>
+        </div>
+
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Recent Events</h2>
+            <p class="section-subtitle">Your currently listed campus events</p>
+          </div>
+          <button class="text-button" (click)="setPage('Manage Events')">
+            View All →
+          </button>
+        </div>
+
+        <div class="event-list">
+          @for (event of events.slice(0, 3); track event._id) {
+            <div class="event-row">
+              <div class="event-symbol">📌</div>
+              <div class="event-info">
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.category }} · {{ event.venue }}</p>
+              </div>
+              <div class="event-date">{{ event.date }}</div>
+              <button class="small-edit" (click)="editEvent(event)">
+                Edit
+              </button>
+            </div>
+          } @empty {
+            <div class="empty-state">No events have been created yet.</div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Create / Edit Event -->
+    @if (activePage === 'Create Event') {
+      <section class="page-content">
+        <div class="page-intro">
+          <h2>{{ editingEventId !== null ? 'Edit Event' : 'Create a New Event' }}</h2>
+          <p>Enter the event details below.</p>
+        </div>
+
+        <form class="event-form" (ngSubmit)="saveEvent()" #eventForm="ngForm">
+          <div class="form-heading">
+            <div class="form-heading-icon">✦</div>
+            <div>
+              <h3>Event Information</h3>
+              <p>Fields marked with * are required.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="title">Event Title *</label>
+              <input
+                id="title"
+                type="text"
+                name="title"
+                [(ngModel)]="newEvent.title"
+                placeholder="e.g. Annual Tech Symposium"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category *</label>
+              <select
+                id="category"
+                name="category"
+                [(ngModel)]="newEvent.category"
+                required>
+                <option value="Technical">Technical</option>
+                <option value="Cultural">Cultural</option>
+                <option value="Sports">Sports</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="venue">Venue *</label>
+              <input
+                id="venue"
+                type="text"
+                name="venue"
+                [(ngModel)]="newEvent.venue"
+                placeholder="e.g. Main Auditorium"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="date">Event Date *</label>
+              <input
+                id="date"
+                type="date"
+                name="date"
+                [(ngModel)]="newEvent.date"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="time">Event Time *</label>
+              <input
+                id="time"
+                type="time"
+                name="time"
+                [(ngModel)]="newEvent.time"
+                required>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="description">Description *</label>
+              <textarea
+                id="description"
+                name="description"
+                [(ngModel)]="newEvent.description"
+                rows="4"
+                placeholder="Describe the event and what students can expect..."
+                required></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-button"
+              (click)="resetForm(); setPage('Manage Events')">
+              Cancel
+            </button>
+
+            <button type="submit" class="primary-button">
+              {{ editingEventId !== null ? 'Save Changes' : 'Create Event' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
+    <!-- Manage Events -->
+    @if (activePage === 'Manage Events') {
+      <section class="page-content">
+        <div class="section-title-row manage-heading">
+          <div>
+            <h2 class="section-heading">Manage Campus Events</h2>
+            <p class="section-subtitle">Create, edit or remove events.</p>
+          </div>
+          <button class="primary-button" (click)="setPage('Create Event')">
+            + Create Event
+          </button>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span>⌕</span>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              placeholder="Search events..."
+              aria-label="Search events">
+          </div>
+          <span class="event-count">{{ filteredEvents.length }} events</span>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>EVENT</th>
+                <th>CATEGORY</th>
+                <th>DATE & TIME</th>
+                <th>VENUE</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (event of filteredEvents; track event._id) {
+                <tr>
+                  <td>
+                    <div class="table-event-title">{{ event.title }}</div>
+                    <div class="table-description">{{ event.description }}</div>
+                  </td>
+                  <td>
+                    <span class="category-tag"
+                      [class.technical-tag]="event.category === 'Technical'"
+                      [class.cultural-tag]="event.category === 'Cultural'"
+                      [class.sports-tag]="event.category === 'Sports'"
+                      [class.workshop-tag]="event.category === 'Workshop'">
+                      {{ event.category }}
+                    </span>
+                  </td>
+                  <td>
+                    <div>{{ event.date }}</div>
+                    <div class="table-description">{{ event.time }}</div>
+                  </td>
+                  <td>{{ event.venue }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="edit-button" (click)="editEvent(event)">
+                        Edit
+                      </button>
+                      <button class="delete-button" (click)="deleteEvent(event)">
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty-cell">
+                    No events found. Try another search or create an event.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+  </main>
+</div>
+@if (showDeleteModal && eventToDelete) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div
+      class="delete-modal"
+      (click)="$event.stopPropagation()">
+
+      <div class="delete-modal-icon">!</div>
+
+      <h2>Delete Event?</h2>
+
+      <p>
+        Are you sure you want to delete
+        <strong>{{ eventToDelete.title }}</strong>?
+        This action cannot be undone.
+      </p>
+
+      <div class="modal-actions">
+        <button
+          class="modal-cancel"
+          (click)="cancelDelete()">
+          Cancel
+        </button>
+
+        <button
+          class="modal-delete"
+          (click)="confirmDelete()">
+          Delete Event
+        </button>
+      </div>
+    </div>
+  </div>
+}

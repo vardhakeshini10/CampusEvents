@@ -1,0 +1,62 @@
+
+<div class="auth-page">
+  <a class="auth-brand" routerLink="/">🎓 CampusEvents</a>
+
+  <div class="auth-card">
+    <div class="auth-icon">🎓</div>
+
+    <h1>Welcome Back!</h1>
+    <p class="auth-subtitle">Login to continue your campus journey.</p>
+
+    <form (ngSubmit)="onLogin()">
+      <label>Login as</label>
+
+      <div class="role-selector">
+        <button
+          type="button"
+          [class.active]="role === 'student'"
+          (click)="role = 'student'">
+          👨‍🎓 Student
+        </button>
+
+        <button
+          type="button"
+          [class.active]="role === 'admin'"
+          (click)="role = 'admin'">
+          🛡️ Admin
+        </button>
+      </div>
+
+      <label for="email">Email Address</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        placeholder="Enter your email"
+        autocomplete="email"
+        required />
+
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        required />
+
+      <p class="form-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <button class="login-button" type="submit">Login →</button>
+    </form>
+
+    <p class="auth-footer">
+      Don't have an account?
+      <a routerLink="/register">Register here</a>
+    </p>
+
+    <a class="back-home" routerLink="/">← Back to Home</a>
+  </div>
+</div>
